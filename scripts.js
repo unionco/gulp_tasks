@@ -7,7 +7,7 @@ var watchify = require('watchify');
 var tasks = require('./manifest');
 
 var config = {
-    src: ['assets/js/app.js'],
+    src: 'assets/js/app.js',
     output: 'public/js'
 };
 
@@ -28,6 +28,12 @@ function compile(watch) {
             .pipe($.uglify())
             .pipe($.rename(function(path) {
                 path.basename += '-min';
+            }))
+            .pipe($.notify({
+                title: tasks.config.name,
+                message: "Javascript compiled",
+                icon: tasks.config.icon,
+                onLast: true
             }))
             .pipe(gulp.dest(config.output));
     }

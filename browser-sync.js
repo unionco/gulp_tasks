@@ -9,7 +9,7 @@ var config = module.exports.config = {
         'public/js/**/*'
     ],
     settings: {
-        proxy: 'dev.caferio.com',
+        proxy: tasks.config.domain,
         open: false
     }
 };

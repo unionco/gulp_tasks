@@ -3,13 +3,13 @@ var $ = require('gulp-load-plugins')();
 var browserSync = require('browser-sync');
 var tasks = require('./manifest');
 
-var config =  {
-    src: ['assets/sass/**/*.scss'],
+var config = {
+    src: 'assets/sass/**/*.scss',
     output: 'public/css',
     settings: {}
 };
 
-gulp.task('sass', function() {
+gulp.task('styles', function() {
     return gulp.src(config.src)
         .pipe($.sourcemaps.init())
         .pipe($.sass(config.settings))
@@ -17,12 +17,18 @@ gulp.task('sass', function() {
         .pipe($.cssnano())
         .pipe($.sourcemaps.write('.'))
         .pipe(browserSync.stream({match: '**/*.css'}))
+        .pipe($.notify({
+            title: tasks.config.name,
+            message: "Sass compiled",
+            icon: tasks.config.icon,
+            onLast: true
+        }))
         .pipe(gulp.dest(config.output));
 });
 
-gulp.task('sass:watch', ['sass'], function() {
-    gulp.watch(config.src, ['sass'])
+gulp.task('styles:watch', ['styles'], function() {
+    gulp.watch(config.src, ['styles'])
 });
 
-tasks.default.push('sass');
-tasks.watch.push('sass:watch');
+tasks.default.push('styles');
+tasks.watch.push('styles:watch');

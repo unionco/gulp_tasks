@@ -1,7 +1,7 @@
 {
   "name": "gulp-tasks",
   "private": true,
-  "dependencies": {
+  "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
     "babelify": "^7.2.0",
@@ -13,6 +13,7 @@
     "gulp-filter": "^3.0.1",
     "gulp-imagemin": "^2.4.0",
     "gulp-load-plugins": "^1.2.0",
+    "gulp-notify": "^2.2.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.1.1",
     "gulp-sourcemaps": "^1.6.0",
