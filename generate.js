@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var _ = require('lodash');
 var fs = require('fs');
+var path = require('path');
 var inquirer = require('inquirer');
 
 var config = {
@@ -8,47 +9,29 @@ var config = {
     rootFile: 'styles.scss'
 };
 
-function getFileData(type, name, requires) {
-    var fileStr = '@import "../global.scss";\n' +
-        '{{requires}}\n' +
-        '@include exports("{{moduleName}}") {\n\n' +
-        '    {{content}}\n' +
-        '}\n';
+function getFileData(folder, name, requires) {
 
-    var content = '';
-    var moduleName = name;
-    var folder = type;
-
-    switch (type) {
-        case 'data':
-            moduleName = 'data-' + name;
-            content = '$data-name: "' + moduleName + '";\n\n    [#{$data-name}] {\n\n    }';
+    switch (folder) {
+        case 'modules':
+            name = _.camelCase(name).replace(/^(.)/, c => c.toUpperCase());
             break;
-        case 'module':
-            moduleName = name = _.startCase(name).replace(' ', '');
-            folder += 's';
-            content = '.' + moduleName + ' {\n\n    }';
-            break;
-        case 'page':
+        case 'pages':
             name = _.camelCase(name);
-            moduleName = 'Page--' + name;
-            folder += 's';
-            content = '.' + moduleName + ' {\n\n    }';
             break;
     }
 
-    _.forEach(requires, function(require) {
-        if (!require) return;
-        fileStr = fileStr.replace('{{requires}}', '@import "'+require+'";\n{{requires}}');
-    });
-    fileStr = fileStr.replace('{{requires}}', '')
-        .replace('{{moduleName}}', moduleName)
-        .replace('{{content}}', content);
+    var contents = fs.readFileSync(config.stylesDir + '_templates/_' + folder + '.scss').toString();
+
+    requires = requires.filter(r => !!r)
+        .map(req => '@import "' + req + '";');
+
+    contents = contents.replace("#{'requires'}", requires.join("\n"))
+        .replace(/#{'name'}/g, name);
 
     return {
         folder: folder,
         name: name,
-        contents: fileStr
+        contents: contents
     };
 }
 
@@ -84,13 +67,23 @@ function writeNewFile(data) {
     });
 }
 
+function getFiles(srcpath) {
+    return fs.readdirSync(srcpath)
+        .filter(function(file) {
+            return fs.statSync(path.join(srcpath, file)).isFile();
+        })
+        .map(function(file) {
+            return file.replace(/^_/, '').replace(/\.scss$/, '');
+        });
+}
+
 gulp.task('generate:style', function() {
 
     inquirer.prompt([{
         name: 'type',
         type: 'list',
         message: 'Choose a type:',
-        choices: ['common', 'data', 'module', 'page']
+        choices: getFiles(config.stylesDir + '_templates')
     }, {
         name: 'name',
         type: 'input',
