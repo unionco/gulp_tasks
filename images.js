@@ -1,30 +1,40 @@
 var gulp = require('gulp');
-var $ = require('gulp-load-plugins')();
+var notify = require('gulp-notify');
+var imagemin = require('gulp-imagemin');
 var tasks = require('./manifest');
 
-var config = {
-    src: ['assets/img/**/*'],
-    output: 'public/img',
+var config = module.exports = {
+    srcDir: tasks.config.resourceDir + 'img/',
+    output: tasks.config.publicDir + 'img/',
     settings: {
-        svgoPlugins: [{
-            removeUselessDefs: false
-        }]
+        svgoPlugins: [
+            { removeAttrs: false },
+            { removeUselessDefs: false }
+        ]
     }
 };
 
 function compile(src) {
-    return gulp.src(src, {base: 'assets/img'})
-        .pipe($.imagemin(config.settings))
+    return gulp.src(src, {base: config.srcDir})
+        .pipe(imagemin(config.settings))
+        .pipe(notify({
+            title: tasks.config.name,
+            message: 'Images compiled',
+            icon: tasks.config.icon,
+            onLast: true
+        }))
         .pipe(gulp.dest(config.output));
 }
 
 gulp.task('images', function() {
-    return compile(config.src);
+    compile(config.srcDir + '**/*.{gif,jpg,png,svg}');
 });
 
-gulp.task('images:watch', ['images'], function() {
-    gulp.watch(config.src).on('change', function(file) {
-        compile(file.path);
+gulp.task('images:watch', function() {
+    gulp.watch(config.srcDir + '**/*', function(file) {
+        if (file) {
+            compile(file.path);
+        }
     });
 });
 

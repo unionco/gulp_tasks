@@ -1,10 +1,11 @@
 var gulp = require('gulp');
-var $ = require('gulp-load-plugins')();
+var svgmin = require('gulp-svgmin');
+var svgstore = require('gulp-svgstore');
 var tasks = require('./manifest');
 
-var config = {
-    src: ['assets/img/icons/*.svg'],
-    output: 'public/img',
+var config = module.exports = {
+    srcDir: tasks.config.resourceDir + 'img/icons/',
+    output: tasks.config.publicDir + 'img/',
     settings: {
         min: {
             plugins: [{
@@ -24,14 +25,14 @@ var config = {
 };
 
 gulp.task('icons', function() {
-    return gulp.src(config.src)
-        .pipe($.svgmin(config.settings.min))
-        .pipe($.svgstore(config.settings.store))
+    return gulp.src(config.srcDir + '*.svg')
+        .pipe(svgmin(config.settings.min))
+        .pipe(svgstore(config.settings.store))
         .pipe(gulp.dest(config.output));
 });
 
 gulp.task('icons:watch', ['icons'], function() {
-    gulp.watch(config.src, ['icons']);
+    gulp.watch(config.srcDir + '*.svg', ['icons']);
 });
 
 tasks.default.push('icons');
