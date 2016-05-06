@@ -7,5 +7,6 @@ module.exports = {
         publicDir: 'public/'
     },
     default: [],
+    lint: [],
     watch: []
 };
